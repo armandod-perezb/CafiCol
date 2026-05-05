@@ -70,7 +70,7 @@ const imagenesDerivados = {
   "Espresso": "https://commons.wikimedia.org/wiki/Special:FilePath/Espresso_coffee.jpg",
   "Capuchino": "https://commons.wikimedia.org/wiki/Special:FilePath/Classic_Cappuccino.jpg",
   "Café filtrado": "https://commons.wikimedia.org/wiki/Special:FilePath/Manual_drip_%28pour-over%29_coffee.jpg",
-  "Cold brew": "https://commons.wikimedia.org/wiki/Special:FilePath/Iced_cold_brew_coffee.jpg",
+  "Cold brew": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Iced_cold_brew_coffee.jpg/960px-Iced_cold_brew_coffee.jpg",
   "Café campesino": "https://commons.wikimedia.org/wiki/Special:FilePath/Cup_of_black_coffee.jpg"
 };
 
