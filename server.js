@@ -18,6 +18,10 @@ const regiones = {
   "Sierra Nevada": "El café de la Sierra Nevada se cultiva en una zona montañosa cercana al mar Caribe. Presenta notas frutales, dulces y achocolatadas, con buen cuerpo y un perfil especial por su clima y biodiversidad."
 };
 
+const altitud = {
+  "importancia": "La altitud influye en el desarrollo del grano de café. En zonas más altas, el fruto madura más lento, lo que puede generar mayor acidez, aromas más complejos y sabores más definidos. Por eso muchas regiones cafeteras de Colombia se asocian con cafés especiales de montaña."
+};
+
 const variedades = {
   "Arábica": "El café Arábica es una de las especies más importantes del mundo cafetero. En Colombia es muy común por su suavidad, aroma agradable, buena acidez y perfiles dulces o frutales.",
   "Robusta": "El café Robusta tiene mayor contenido de cafeína y un sabor más fuerte e intenso. En Colombia predomina el Arábica, pero Robusta sirve como referencia dentro de la clasificación de tipos de grano.",
@@ -232,6 +236,10 @@ function manejarWebhook(req, res) {
 
     case "preguntas_frecuentes":
       respuesta = preguntasFrecuentes[Math.floor(Math.random() * preguntasFrecuentes.length)];
+      break;
+    
+    case "consultar_importancia_altitud":
+      respuesta = altitud.importancia;
       break;
   }
 
