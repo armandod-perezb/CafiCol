@@ -32,6 +32,16 @@ const variedades = {
   "Colombia": "La variedad Colombia fue desarrollada para adaptarse a las condiciones cafeteras del país y mejorar la resistencia a enfermedades como la roya. Produce una taza suave, balanceada y de buena calidad."
 };
 
+const imagenesVariedades = {
+  "Arábica": "https://commons.wikimedia.org/wiki/Special:FilePath/Coffea_arabica_43zz.jpg",
+  "Robusta": "https://commons.wikimedia.org/wiki/Special:FilePath/Coffea_canephora_berries.JPG",
+  "Caturra": "https://commons.wikimedia.org/wiki/Special:FilePath/Coffee_beans_unroasted.jpg",
+  "Castillo": "https://commons.wikimedia.org/wiki/Special:FilePath/Coffee_beans_unroasted.jpg",
+  "Bourbon": "https://commons.wikimedia.org/wiki/Special:FilePath/Coffea_arabica_31zz.jpg",
+  "Típica": "https://commons.wikimedia.org/wiki/Special:FilePath/Coffea_arabica_35zz.jpg",
+  "Colombia": "https://commons.wikimedia.org/wiki/Special:FilePath/Coffea_arabica_42zz.jpg"
+};
+
 const metodos = {
   "Lavado": "El método lavado consiste en retirar la pulpa del café y fermentar el grano antes del secado. Produce una taza limpia, con acidez marcada y sabores más definidos.",
   "Natural": "El método natural seca el grano con la cereza completa. Esto genera cafés más frutales, dulces y con mayor cuerpo.",
@@ -143,30 +153,40 @@ function normalizarIntent(intent) {
     .replace(/^consultar_derivados$/, "consultar_derivado");
 }
 
-function responderDialogflow(req, res, texto) {
+function crearMensajesDialogflow(texto, imagenUrl) {
+  const mensajes = [
+    {
+      text: {
+        text: [texto]
+      }
+    }
+  ];
+
+  if (imagenUrl) {
+    mensajes.push({
+      image: {
+        imageUri: imagenUrl
+      }
+    });
+  }
+
+  return mensajes;
+}
+
+function responderDialogflow(req, res, texto, imagenUrl = null) {
+  const fulfillmentMessages = crearMensajesDialogflow(texto, imagenUrl);
+
   if (req.body?.queryResult) {
     return res.json({
       fulfillmentText: texto,
-      fulfillmentMessages: [
-        {
-          text: {
-            text: [texto]
-          }
-        }
-      ],
+      fulfillmentMessages,
       source: "caficol-webhook"
     });
   }
 
   return res.json({
     fulfillment_response: {
-      messages: [
-        {
-          text: {
-            text: [texto]
-          }
-        }
-      ]
+      messages: fulfillmentMessages
     }
   });
 }
@@ -184,6 +204,8 @@ function manejarWebhook(req, res) {
 
   let respuesta = "No encontré una respuesta específica para esa consulta. Puedes preguntarme por regiones, variedades, métodos, certificaciones, sabores, derivados o altitudes del café colombiano.";
 
+  let imagenUrl = null;
+
   const region = parametros.region_cafetera;
   const tipoGrano = parametros.tipo_grano;
   const metodo = parametros.metodo_procesamiento;
@@ -200,6 +222,7 @@ function manejarWebhook(req, res) {
     case "consultar_variedad":
       respuesta = buscarRespuesta(variedades, tipoGrano) ||
         "En Colombia existen variedades como Arábica, Robusta, Caturra, Castillo, Bourbon, Típica y Colombia.";
+      imagenUrl = buscarRespuesta(imagenesVariedades, tipoGrano);
       break;
 
     case "consultar_metodo":
@@ -253,7 +276,7 @@ function manejarWebhook(req, res) {
       break;
   }
 
-  responderDialogflow(req, res, respuesta);
+  responderDialogflow(req, res, respuesta, imagenUrl);
 }
 
 app.post("/", manejarWebhook);
