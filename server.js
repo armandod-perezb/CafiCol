@@ -33,13 +33,13 @@ const variedades = {
 };
 
 const imagenesVariedades = {
-  "Arábica": "https://commons.wikimedia.org/wiki/Special:FilePath/Coffea_arabica_43zz.jpg",
-  "Robusta": "https://commons.wikimedia.org/wiki/Special:FilePath/Coffea_canephora_berries.JPG",
-  "Caturra": "https://commons.wikimedia.org/wiki/Special:FilePath/Coffee_beans_unroasted.jpg",
-  "Castillo": "https://commons.wikimedia.org/wiki/Special:FilePath/Coffee_beans_unroasted.jpg",
-  "Bourbon": "https://commons.wikimedia.org/wiki/Special:FilePath/Coffea_arabica_31zz.jpg",
-  "Típica": "https://commons.wikimedia.org/wiki/Special:FilePath/Coffea_arabica_35zz.jpg",
-  "Colombia": "https://commons.wikimedia.org/wiki/Special:FilePath/Coffea_arabica_42zz.jpg"
+  "Arábica": "https://commons.wikimedia.org/wiki/Special:FilePath/Coffea_arabica%2C_coffee_beans_.jpg",
+  "Robusta": "https://commons.wikimedia.org/wiki/Special:FilePath/Coffee_beans_robusta.jpg",
+  "Caturra": "https://commons.wikimedia.org/wiki/Special:FilePath/Mata_de_caf%C3%A9_tipo_caturro_colombiano.JPG",
+  "Castillo": "https://commons.wikimedia.org/wiki/Special:FilePath/Mata_de_caf%C3%A9_tipo_caturro_colombiano.JPG",
+  "Bourbon": "https://commons.wikimedia.org/wiki/Special:FilePath/Bourbon_Coffee.jpg",
+  "Típica": "https://commons.wikimedia.org/wiki/Special:FilePath/Amy_farms_typica_hybrid_coffee_beans.jpg",
+  "Colombia": "https://commons.wikimedia.org/wiki/Special:FilePath/CoffeeFruitsShow.jpg"
 };
 
 const metodos = {
@@ -165,7 +165,8 @@ function crearMensajesDialogflow(texto, imagenUrl) {
   if (imagenUrl) {
     mensajes.push({
       image: {
-        imageUri: imagenUrl
+        imageUri: imagenUrl,
+        accessibilityText: "Imagen de la variedad o tipo de grano consultado"
       }
     });
   }
@@ -173,22 +174,56 @@ function crearMensajesDialogflow(texto, imagenUrl) {
   return mensajes;
 }
 
+function crearRichContent(texto, imagenUrl) {
+  if (!imagenUrl) return undefined;
+
+  return [
+    [
+      {
+        type: "image",
+        rawUrl: imagenUrl,
+        accessibilityText: "Imagen de la variedad o tipo de grano consultado"
+      },
+      {
+        type: "description",
+        title: "Variedad / tipo de grano",
+        text: [texto]
+      }
+    ]
+  ];
+}
+
 function responderDialogflow(req, res, texto, imagenUrl = null) {
   const fulfillmentMessages = crearMensajesDialogflow(texto, imagenUrl);
+  const richContent = crearRichContent(texto, imagenUrl);
+  const payload = richContent ? { richContent } : undefined;
 
   if (req.body?.queryResult) {
-    return res.json({
+    const respuesta = {
       fulfillmentText: texto,
       fulfillmentMessages,
       source: "caficol-webhook"
-    });
+    };
+
+    if (payload) {
+      respuesta.payload = payload;
+      respuesta.fulfillmentMessages.push({ payload });
+    }
+
+    return res.json(respuesta);
   }
 
-  return res.json({
+  const respuesta = {
     fulfillment_response: {
       messages: fulfillmentMessages
     }
-  });
+  };
+
+  if (payload) {
+    respuesta.fulfillment_response.messages.push({ payload });
+  }
+
+  return res.json(respuesta);
 }
 
 app.get("/", (req, res) => {
@@ -253,6 +288,7 @@ function manejarWebhook(req, res) {
     case "consultar_altitud_variedad":
       respuesta = buscarRespuesta(altitudesVariedades, tipoGrano) ||
         "La altitud de cultivo depende de la variedad. Muchas variedades colombianas se cultivan entre 1.200 y 2.000 metros sobre el nivel del mar.";
+      imagenUrl = buscarRespuesta(imagenesVariedades, tipoGrano);
       break;
 
     case "consultar_productores":
