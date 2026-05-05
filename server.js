@@ -65,6 +65,15 @@ const derivados = {
   "Café campesino": "El café campesino es una bebida tradicional preparada de forma sencilla, generalmente filtrada o hervida. Es común en zonas rurales cafeteras y se asocia con la cultura de los caficultores."
 };
 
+const imagenesDerivados = {
+  "Tinto": "https://commons.wikimedia.org/wiki/Special:FilePath/Colombian_Coffee.jpg",
+  "Espresso": "https://commons.wikimedia.org/wiki/Special:FilePath/Espresso_coffee.jpg",
+  "Capuchino": "https://commons.wikimedia.org/wiki/Special:FilePath/Classic_Cappuccino.jpg",
+  "Café filtrado": "https://commons.wikimedia.org/wiki/Special:FilePath/Manual_drip_%28pour-over%29_coffee.jpg",
+  "Cold brew": "https://commons.wikimedia.org/wiki/Special:FilePath/Iced_cold_brew_coffee.jpg",
+  "Café campesino": "https://commons.wikimedia.org/wiki/Special:FilePath/Cup_of_black_coffee.jpg"
+};
+
 const sabores = {
   "Dulce": "Para un perfil dulce, te recomiendo cafés de Huila o Antioquia. Suelen tener notas a caramelo, panela, chocolate o frutas maduras.",
   "Frutal": "Para notas frutales, una buena opción es café de Nariño, Cauca o Sierra Nevada. Estos cafés suelen tener acidez brillante y aromas más complejos.",
@@ -166,7 +175,7 @@ function crearMensajesDialogflow(texto, imagenUrl) {
     mensajes.push({
       image: {
         imageUri: imagenUrl,
-        accessibilityText: "Imagen de la variedad o tipo de grano consultado"
+        accessibilityText: "Imagen relacionada con la consulta de café"
       }
     });
   }
@@ -182,11 +191,11 @@ function crearRichContent(texto, imagenUrl) {
       {
         type: "image",
         rawUrl: imagenUrl,
-        accessibilityText: "Imagen de la variedad o tipo de grano consultado"
+        accessibilityText: "Imagen relacionada con la consulta de café"
       },
       {
         type: "description",
-        title: "Variedad / tipo de grano",
+        title: "Consulta de café",
         text: [texto]
       }
     ]
@@ -273,6 +282,7 @@ function manejarWebhook(req, res) {
     case "consultar_derivado":
       respuesta = buscarRespuesta(derivados, derivado) ||
         "Del café colombiano se preparan derivados como tinto, espresso, capuchino, café filtrado, café campesino y cold brew.";
+      imagenUrl = buscarRespuesta(imagenesDerivados, derivado);
       break;
 
     case "consultar_sabor":
