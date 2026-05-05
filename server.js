@@ -152,16 +152,6 @@ function obtenerParametros(body) {
     {};
 }
 
-function normalizarIntent(intent) {
-  return normalizarTexto(intent)
-    .replace(/\s+/g, "_")
-    .replace(/^consultar_region_cafetera$/, "consultar_region")
-    .replace(/^consultar_variedades$/, "consultar_variedad")
-    .replace(/^consultar_metodo_de_procesamiento$/, "consultar_metodo")
-    .replace(/^consultar_certificaciones$/, "consultar_certificacion")
-    .replace(/^consultar_derivados$/, "consultar_derivado");
-}
-
 function crearMensajesDialogflow(texto, imagenUrl) {
   const mensajes = [
     {
@@ -240,7 +230,7 @@ app.get("/", (req, res) => {
 });
 
 function manejarWebhook(req, res) {
-  const intent = normalizarIntent(obtenerIntent(req.body));
+  const intent = obtenerIntent(req.body);
   const parametros = obtenerParametros(req.body);
 
   console.log("Intent:", intent);
