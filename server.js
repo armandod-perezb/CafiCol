@@ -116,13 +116,54 @@ function buscarRespuesta(diccionario, valor) {
   return llave ? diccionario[llave] : null;
 }
 
+function obtenerIntent(body) {
+  return body?.queryResult?.intent?.displayName ||
+    body?.fulfillmentInfo?.tag ||
+    body?.intentInfo?.displayName ||
+    "";
+}
+
+function obtenerParametros(body) {
+  return body?.queryResult?.parameters ||
+    body?.sessionInfo?.parameters ||
+    {};
+}
+
+function responderDialogflow(req, res, texto) {
+  if (req.body?.queryResult) {
+    return res.json({
+      fulfillmentText: texto,
+      fulfillmentMessages: [
+        {
+          text: {
+            text: [texto]
+          }
+        }
+      ],
+      source: "caficol-webhook"
+    });
+  }
+
+  return res.json({
+    fulfillment_response: {
+      messages: [
+        {
+          text: {
+            text: [texto]
+          }
+        }
+      ]
+    }
+  });
+}
+
 app.get("/", (req, res) => {
   res.send("Webhook de CafetoBot funcionando correctamente.");
 });
 
-app.post("/webhook", (req, res) => {
-  const intent = req.body.queryResult.intent.displayName;
-  const parametros = req.body.queryResult.parameters || {};
+function manejarWebhook(req, res) {
+  const intent = obtenerIntent(req.body);
+  const parametros = obtenerParametros(req.body);
 
   console.log("Intent:", intent);
   console.log("Parámetros:", parametros);
@@ -194,10 +235,11 @@ app.post("/webhook", (req, res) => {
       break;
   }
 
-  res.json({
-    fulfillmentText: respuesta
-  });
-});
+  responderDialogflow(req, res, respuesta);
+}
+
+app.post("/", manejarWebhook);
+app.post("/webhook", manejarWebhook);
 
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en http://localhost:${PORT}`);
