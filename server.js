@@ -373,7 +373,7 @@ function responderCompra(parametros) {
   const region = obtenerValor(parametros.region_cafetera);
   const sabor = obtenerValor(parametros.perfil_sabor);
   const tipoGrano = obtenerValor(parametros.tipo_grano);
-  const cantidad = Number(obtenerValor(parametros.cantidad)) || 1;
+  const cantidad = Number(obtenerValor(parametros.number)) || 1;
 
   let producto = null;
 
